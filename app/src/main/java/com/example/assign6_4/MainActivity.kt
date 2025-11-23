@@ -69,15 +69,25 @@ class MainActivity : ComponentActivity(), SensorEventListener {
 fun SimpleGyroMaze(gx: Float, gy: Float) {
     var ballX by remember { mutableStateOf(200f) }
     var ballY by remember { mutableStateOf(200f) }
-    val ballRadius = 30f
+    val ballRadius = 20f
 
     // walls
     val walls = listOf(
-        Rect(100f, 100f, 400f, 120f),
-        Rect(100f, 100f, 120f, 400f),
-        Rect(100f, 400f, 400f, 420f),
-        Rect(400f, 100f, 420f, 420f),
-        Rect(200f, 200f, 300f, 220f)
+        // outer box
+        Rect(50f, 50f, 750f, 70f),   // top
+        Rect(50f, 50f, 70f, 550f),   // left
+        Rect(50f, 530f, 750f, 550f), // bottom
+        Rect(730f, 50f, 750f, 550f), // right
+
+        // internal maze walls
+        Rect(150f, 50f, 170f, 400f),
+        Rect(250f, 150f, 270f, 550f),
+        Rect(350f, 50f, 370f, 450f),
+        Rect(450f, 150f, 470f, 550f),
+        Rect(550f, 50f, 570f, 450f),
+        Rect(650f, 150f, 670f, 550f),
+        Rect(150f, 400f, 250f, 420f),
+        Rect(450f, 50f, 650f, 70f),
     )
 
     Canvas(
