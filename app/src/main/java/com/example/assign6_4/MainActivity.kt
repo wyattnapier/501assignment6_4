@@ -17,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sqrt
 
 class MainActivity : ComponentActivity(), SensorEventListener {
 
@@ -77,19 +80,30 @@ fun SimpleGyroMaze(gx: Float, gy: Float) {
         Rect(200f, 200f, 300f, 220f)
     )
 
-    // Update ball position each frame
     Canvas(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // simple position update
-        ballX += gx * 5
-        ballY += gy * 5
+        val nextX = ballX + gx * 5
+        val nextY = ballY + gy * 5
 
-        // clamp to canvas
-        ballX = ballX.coerceIn(ballRadius, size.width - ballRadius)
-        ballY = ballY.coerceIn(ballRadius, size.height - ballRadius)
+        // check collisions
+        var newX = nextX
+        var newY = nextY
+
+        walls.forEach { wall ->
+            if (circleRectCollision(nextX, ballY, ballRadius, wall)) {
+                newX = ballX // undo horizontal move
+            }
+            if (circleRectCollision(ballX, nextY, ballRadius, wall)) {
+                newY = ballY // undo vertical move
+            }
+        }
+
+        // update ball position
+        ballX = newX.coerceIn(ballRadius, size.width - ballRadius)
+        ballY = newY.coerceIn(ballRadius, size.height - ballRadius)
 
         // draw walls
         walls.forEach { drawRect(Color.Black, it.topLeft, it.size) }
@@ -97,4 +111,17 @@ fun SimpleGyroMaze(gx: Float, gy: Float) {
         // draw ball
         drawCircle(Color.Red, radius = ballRadius, center = Offset(ballX, ballY))
     }
+}
+
+// simple circle vs rectangle collision
+private fun circleRectCollision(cx: Float, cy: Float, radius: Float, rect: Rect): Boolean {
+    val closestX = clamp(cx, rect.left, rect.right)
+    val closestY = clamp(cy, rect.top, rect.bottom)
+    val dx = cx - closestX
+    val dy = cy - closestY
+    return dx * dx + dy * dy < radius * radius
+}
+
+private fun clamp(value: Float, min: Float, max: Float): Float {
+    return max(min, kotlin.math.min(value, max))
 }
